@@ -1,0 +1,58 @@
+// Define the pins for your hardware
+const int xPin = A0;
+const int yPin = A1;
+const int zPin = A2;
+const int ledPin = 8;
+const int speakerPin = 9;
+
+// Variables to store the starting position
+int baselineX, baselineY, baselineZ;
+
+// How much movement triggers the alarm (adjust this number)
+const int threshold = 50; 
+
+void setup() {
+  pinMode(ledPin, OUTPUT);
+  pinMode(speakerPin, OUTPUT);
+  
+  // Wait a second for the sensor to settle, then read the starting position
+  delay(1000);
+  baselineX = analogRead(xPin);
+  baselineY = analogRead(yPin);
+  baselineZ = analogRead(zPin);
+}
+
+void loop() {
+  // Read the current position
+  int currentX = analogRead(xPin);
+  int currentY = analogRead(yPin);
+  int currentZ = analogRead(currentZ);
+
+  // Calculate the difference from the starting position
+  int diffX = abs(currentX - baselineX);
+  int diffY = abs(currentY - baselineY);
+  int diffZ = abs(currentZ - baselineZ);
+
+  // If any axis moves more than the threshold, trigger the alarm
+  if (diffX > threshold || diffY > threshold || diffZ > threshold) {
+    triggerAlarm();
+  } else {
+    // Turn off LED and Speaker if there is no earthquake
+    digitalWrite(ledPin, LOW);
+    noTone(speakerPin);
+  }
+  
+  // A small delay to keep the readings stable
+  delay(100); 
+}
+
+// Basic function to flash the LED and play a siren sound
+void triggerAlarm() {
+  digitalWrite(ledPin, HIGH);
+  tone(speakerPin, 1000); // Play a 1000Hz tone
+  delay(200);             // Wait 200 milliseconds
+  
+  digitalWrite(ledPin, LOW);
+  tone(speakerPin, 800);  // Play a lower 800Hz tone
+  delay(200);             // Wait 200 milliseconds
+}
